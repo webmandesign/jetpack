@@ -3431,97 +3431,44 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 
 	/**
-	 * Deprecated - Get third party plugin API keys.
-	 * @deprecated
+	 * Returns a list of all plugins in the site.
 	 *
-	 * @param WP_REST_Request $request {
-	 *     Array of parameters received by request.
+	 * @since 4.2.0
+	 * @uses get_plugins()
 	 *
-	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
-	 * }
+	 * @return array
 	 */
-	public static function get_service_api_key( $request ) {
-		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::get_service_api_key' );
-		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::get_service_api_key( $request );
+	private static function core_get_plugins() {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
+		$plugins = apply_filters( 'all_plugins', get_plugins() );
+
+		if ( is_array( $plugins ) && ! empty( $plugins ) ) {
+			foreach ( $plugins as $plugin_slug => $plugin_data ) {
+				$plugins[ $plugin_slug ]['active'] = self::core_is_plugin_active( $plugin_slug );
+			}
+			return $plugins;
+		}
+
+		return array();
 	}
 
 	/**
-	 * Deprecated - Update third party plugin API keys.
-	 * @deprecated
+	 * Checks if the queried plugin is active.
 	 *
-	 * @param WP_REST_Request $request {
-	 *     Array of parameters received by request.
+	 * @since 4.2.0
+	 * @uses is_plugin_active()
 	 *
-	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
-	 * }
+	 * @return bool
 	 */
-	public static function update_service_api_key( $request ) {
-		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::update_service_api_key' );
-		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::update_service_api_key( $request ) ;
-	}
+	private static function core_is_plugin_active( $plugin ) {
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
 
-	/**
-	 * Deprecated - Delete a third party plugin API key.
-	 * @deprecated
-	 *
-	 * @param WP_REST_Request $request {
-	 *     Array of parameters received by request.
-	 *
-	 *     @type string $slug Plugin slug with the syntax 'plugin-directory/plugin-main-file.php'.
-	 * }
-	 */
-	public static function delete_service_api_key( $request ) {
-		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::delete_service_api_key' );
-		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::delete_service_api_key( $request );
-	}
-
-	/**
-	 * Deprecated - Validate the service provided in /service-api-keys/ endpoints.
-	 * To add a service to these endpoints, add the service name to $valid_services
-	 * and add '{service name}_api_key' to the non-compact return array in get_option_names(),
-	 * in class-jetpack-options.php
-	 * @deprecated
-	 *
-	 * @param string $service The service the API key is for.
-	 * @return string Returns the service name if valid, null if invalid.
-	 */
-	public static function validate_service_api_service( $service = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_service' );
-		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_service( $service );
-	}
-
-	/**
-	 * Error response for invalid service API key requests with an invalid service.
-	 */
-	public static function service_api_invalid_service_response() {
-		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::service_api_invalid_service_response' );
-		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::service_api_invalid_service_response();
-	}
-
-	/**
-	 * Deprecated - Validate API Key
-	 * @deprecated
-	 *
-	 * @param string $key The API key to be validated.
-	 * @param string $service The service the API key is for.
-	 *
-	 */
-	public static function validate_service_api_key( $key = null, $service = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_key' );
-		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_key( $key , $service  );
-	}
-
-	/**
-	 * Deprecated - Validate Mapbox API key
-	 * Based loosely on https://github.com/mapbox/geocoding-example/blob/master/php/MapboxTest.php
-	 * @deprecated
-	 *
-	 * @param string $key The API key to be validated.
-	 */
-	public static function validate_service_api_key_mapbox( $key ) {
-		_deprecated_function( __METHOD__, 'jetpack-6.9.0', 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_key' );
-		return WPCOM_REST_API_V2_Endpoint_Service_API_Keys::validate_service_api_key_mapbox( $key );
-
+		return is_plugin_active( $plugin );
 	}
 
 	/**
