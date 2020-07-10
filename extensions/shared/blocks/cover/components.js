@@ -30,6 +30,7 @@ export const JetpackCoverUpgradeNudge = ( { name, show, align } ) =>
 				plan="value_bundle"
 				blockName={ name }
 				title={ {
+					/* translators: Placeholder is the plan name, such as Jetpack Premium. */
 					knownPlan: __( 'To use a video in this block, upgrade to %(planName)s.', 'jetpack' ),
 					unknownPlan: __( 'To use a video in this block, upgrade to a paid plan.', 'jetpack' ),
 				} }
