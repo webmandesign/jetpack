@@ -16,6 +16,7 @@ import {
 	useCallback,
 } from '@wordpress/element';
 import { isBlobURL } from '@wordpress/blob';
+import { useDispatch, useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -26,18 +27,27 @@ import ProgressBar from './progress-bar';
 import { Background, Controls, Header, Overlay } from './components';
 import useResizeObserver from './use-resize-observer';
 
-export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settings } ) => {
-	const [ currentSlideIndex, updateSlideIndex ] = useState( 0 );
-	const [ playing, setPlaying ] = useState( false );
-	const [ ended, setEnded ] = useState( false );
-	const [ muted, setMuted ] = useState( settings.startMuted );
-	const [ currentSlideProgress, setCurrentSlideProgress ] = useState( 0 );
+export const Player = ( { id, slides, fullscreen, setFullscreen, disabled, ...settings } ) => {
+	const { setPlaying, setMuted, showSlide } = useDispatch( 'jetpack/story/player' );
+
+	const { playing, muted, currentSlideIndex, currentSlideEnded } = useSelect( select => {
+		const { isPlaying, isMuted, getCurrentSlideIndex, hasCurrentSlideEnded } = select(
+			'jetpack/story/player'
+		);
+		return {
+			playing: isPlaying( id ),
+			muted: isMuted( id ),
+			currentSlideIndex: getCurrentSlideIndex( id ),
+			currentSlideEnded: hasCurrentSlideEnded( id ),
+		};
+	}, [] );
 
 	const wrapperRef = useRef();
 	const [ maxSlideWidth, setMaxSlideWidth ] = useState( null );
 	const [ resizeListener, { width, height } ] = useResizeObserver();
 	const [ targetAspectRatio, setTargetAspectRatio ] = useState( settings.defaultAspectRatio );
 
+	const ended = currentSlideEnded && currentSlideIndex === slides.length - 1;
 	const uploading = some( slides, media => isBlobURL( media.url ) );
 	const showProgressBar = fullscreen || ! settings.showSlideCount;
 	const isVideo = slideIndex => {
@@ -48,12 +58,11 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 		return 'video' === media.type || ( media.mime || '' ).startsWith( 'video/' );
 	};
 
-	const showSlide = ( slideIndex, play = settings.playOnNextSlide ) => {
-		setCurrentSlideProgress( 0 );
-		updateSlideIndex( slideIndex );
+	const playSlide = ( slideIndex, play = settings.playOnNextSlide ) => {
+		showSlide( id, slideIndex );
 
 		if ( play ) {
-			setPlaying( play );
+			setPlaying( id, play );
 		}
 	};
 
@@ -61,30 +70,26 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 		if ( disabled ) {
 			return;
 		}
+		if ( ended && ! playing ) {
+			playSlide( 0 );
+		}
 		if ( ! fullscreen && ! playing && settings.playInFullscreen ) {
 			setFullscreen( true );
-		}
-		if ( ended && ! playing ) {
-			showSlide( 0 );
-		}
-		if ( ! playing && ! fullscreen ) {
-			setPlaying( true );
+			setPlaying( id, true );
 		}
 	}, [ playing, ended, fullscreen, disabled ] );
 
 	const tryPreviousSlide = useCallback( () => {
 		if ( currentSlideIndex > 0 ) {
-			showSlide( currentSlideIndex - 1 );
+			playSlide( currentSlideIndex - 1 );
 		}
 	}, [ currentSlideIndex ] );
 
 	const tryNextSlide = useCallback( () => {
 		if ( currentSlideIndex < slides.length - 1 ) {
-			showSlide( currentSlideIndex + 1 );
+			playSlide( currentSlideIndex + 1 );
 		} else {
-			setPlaying( false );
-			setEnded( true );
-			setCurrentSlideProgress( 100 );
+			setPlaying( id, false );
 			if ( settings.exitFullscreenOnEnd ) {
 				setFullscreen( false );
 			}
@@ -94,44 +99,39 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 	const onExitFullscreen = useCallback( () => {
 		setFullscreen( false );
 		if ( settings.playInFullscreen ) {
-			setPlaying( false );
+			setPlaying( id, false );
 		}
 	}, [ fullscreen ] );
 
 	// pause player when disabled
 	useEffect( () => {
 		if ( disabled && playing ) {
-			setPlaying( false );
+			setPlaying( id, false );
 		}
 	}, [ disabled, playing ] );
-
-	// track play/pause state and check ending
-	useLayoutEffect( () => {
-		if ( playing ) {
-			setEnded( false );
-		}
-	}, [ playing ] );
 
 	useEffect( () => {
 		if ( settings.loadInFullscreen ) {
 			setFullscreen( true );
 		}
 		if ( settings.playOnLoad ) {
-			setPlaying( true );
+			setPlaying( id, true );
 		}
 	}, [] );
 
+	// try next slide
+	useEffect( () => {
+		if ( playing && currentSlideEnded ) {
+			tryNextSlide();
+		}
+	}, [ playing, currentSlideEnded ] );
+
 	useLayoutEffect( () => {
+		const wrapperHeight = ( wrapperRef.current && wrapperRef.current.offsetHeight ) || height;
+		const ratioBasedWidth = Math.round( settings.defaultAspectRatio * wrapperHeight );
 		if ( ! fullscreen ) {
-			if ( ! wrapperRef.current ) {
-				return;
-			}
-			const wrapperHeight = wrapperRef.current.offsetHeight;
-			const ratioBasedWidth = Math.round( settings.defaultAspectRatio * wrapperHeight );
 			setMaxSlideWidth( ratioBasedWidth );
 		} else {
-			const wrapperHeight = ( wrapperRef.current && wrapperRef.current.offsetHeight ) || height;
-			const ratioBasedWidth = Math.round( settings.defaultAspectRatio * wrapperHeight );
 			const newMaxSlideWidth =
 				Math.abs( 1 - ratioBasedWidth / width ) < settings.cropUpTo ? width : ratioBasedWidth;
 			setMaxSlideWidth( newMaxSlideWidth );
@@ -168,19 +168,14 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 				<div className="wp-story-wrapper" ref={ wrapperRef }>
 					{ slides.map( ( media, index ) => (
 						<Slide
+							playerId={ id }
 							key={ index }
 							media={ media }
 							index={ index }
-							currentSlideIndex={ currentSlideIndex }
 							playing={ playing }
 							uploading={ uploading }
-							muted={ muted }
-							ended={ ended }
-							onProgress={ setCurrentSlideProgress }
-							onEnd={ tryNextSlide }
 							settings={ settings }
 							targetAspectRatio={ targetAspectRatio }
-							isVideo={ isVideo( currentSlideIndex ) }
 						/>
 					) ) }
 				</div>
@@ -196,18 +191,17 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 				/>
 				{ showProgressBar && (
 					<ProgressBar
+						playerId={ id }
 						slides={ slides }
 						fullscreen={ fullscreen }
-						currentSlideIndex={ currentSlideIndex }
-						currentSlideProgress={ currentSlideProgress }
-						onSlideSeek={ showSlide }
+						onSlideSeek={ playSlide }
 					/>
 				) }
 				<Controls
 					playing={ playing }
 					muted={ muted }
-					setPlaying={ setPlaying }
-					setMuted={ setMuted }
+					onPlayPressed={ () => setPlaying( id, ! playing ) }
+					onMutePressed={ () => setMuted( id, ! muted ) }
 					showMute={ isVideo( currentSlideIndex ) }
 				/>
 			</div>

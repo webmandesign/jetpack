@@ -8,6 +8,7 @@ import classNames from 'classnames';
  * WordPress dependencies
  */
 import { createElement, useLayoutEffect, useEffect, useState, useRef } from '@wordpress/element';
+import { useDispatch, useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -15,139 +16,45 @@ import { createElement, useLayoutEffect, useEffect, useState, useRef } from '@wo
 import { Media, CalypsoSpinner } from './components';
 
 export const Slide = ( {
+	playerId,
 	media,
 	index,
-	currentSlideIndex,
 	playing,
 	uploading,
-	ended,
-	muted,
-	onEnd,
-	onProgress,
 	settings,
 	targetAspectRatio,
 } ) => {
+	const { currentSlideIndex } = useSelect(
+		select => ( {
+			currentSlideIndex: select( 'jetpack/story/player' ).getCurrentSlideIndex( playerId ),
+		} ),
+		[]
+	);
+
+	const { slideReady } = useDispatch( 'jetpack/story/player' );
+
 	const visible = index === currentSlideIndex;
-	const currentSlidePlaying = visible && playing;
 	const mediaRef = useRef( null );
 	const [ preload, setPreload ] = useState( false );
 	const [ loading, setLoading ] = useState( true );
 	const isVideo = () =>
 		mediaRef.current && mediaRef.current.src && mediaRef.current.tagName.toLowerCase() === 'video';
 
-	const [ progressState, updateProgressState ] = useState( {
-		currentTime: 0,
-		duration: null,
-		timeout: null,
-	} );
-
-	// Sync playing state with underlying HTMLMediaElement
-	// AJAX loading will pause the video when the video src attribute is modified
 	useEffect( () => {
-		if ( isVideo() ) {
-			if ( currentSlidePlaying ) {
-				mediaRef.current.play();
-			} else {
-				mediaRef.current.pause();
-			}
+		if ( visible && ! loading ) {
+			const video = isVideo() ? mediaRef.current : null;
+			slideReady( playerId, mediaRef.current, video ? video.duration : settings.imageTime );
 		}
-	}, [ currentSlidePlaying, loading ] );
-
-	// Display end of video on last slide when story ends
-	useLayoutEffect( () => {
-		if ( isVideo() && ended && visible ) {
-			mediaRef.current.currentTime = mediaRef.current.duration;
-		}
-	}, [ ended, visible ] );
-
-	// Sync muted state with underlying HTMLMediaElement
-	useEffect( () => {
-		if ( isVideo() ) {
-			mediaRef.current.muted = muted;
-			if ( ! muted ) {
-				mediaRef.current.volume = settings.volume;
-			}
-		}
-	}, [ muted ] );
-
-	// Reset progress state for slides that aren't being displayed
-	useEffect( () => {
-		if ( ! visible ) {
-			updateProgressState( {
-				currentTime: 0,
-				duration: null,
-				timeout: null,
-				lastUpdate: null,
-			} );
-			if ( isVideo() ) {
-				mediaRef.current.pause();
-				mediaRef.current.currentTime = 0;
-			}
-		}
-	}, [ visible ] );
+	}, [ visible, loading ] );
 
 	// Reset progress on replay for stories with one slide
-	useEffect( () => {
+	/*useEffect( () => {
 		if ( currentSlidePlaying && ended ) {
-			updateProgressState( {
-				currentTime: 0,
-				duration: null,
-				timeout: null,
-				lastUpdate: null,
-			} );
 			if ( isVideo() ) {
 				mediaRef.current.currentTime = 0;
 			}
 		}
-	}, [ currentSlidePlaying, ended ] );
-
-	// Sync progressState with underlying media playback progress
-	useLayoutEffect( () => {
-		clearTimeout( progressState.timeout );
-		if ( loading ) {
-			return;
-		}
-		if ( playing && visible ) {
-			const video = isVideo() ? mediaRef.current : null;
-			const duration = video ? video.duration : settings.imageTime;
-			if ( progressState.currentTime >= duration ) {
-				return;
-			}
-			progressState.timeout = setTimeout( () => {
-				const delta = progressState.lastUpdate
-					? Date.now() - progressState.lastUpdate
-					: settings.renderInterval;
-				const currentTime = video ? video.currentTime : progressState.currentTime + delta;
-				updateProgressState( {
-					...progressState,
-					lastUpdate: Date.now(),
-					duration,
-					currentTime,
-				} );
-			}, settings.renderInterval );
-		}
-		const paused = visible && ! playing;
-		if ( paused && progressState.lastUpdate ) {
-			updateProgressState( {
-				...progressState,
-				lastUpdate: null,
-			} );
-		}
-	}, [ loading, playing, visible, progressState ] );
-
-	// Watch progressState and trigger events using onProgress and onEnd callbacks
-	useEffect( () => {
-		if ( ! currentSlidePlaying || ended || progressState.duration === null ) {
-			return;
-		}
-		const percentage = Math.round( ( 100 * progressState.currentTime ) / progressState.duration );
-		if ( percentage >= 100 ) {
-			onProgress( 100 );
-			onEnd();
-		} else {
-			onProgress( percentage );
-		}
-	}, [ currentSlidePlaying, visible, progressState ] );
+	}, [ currentSlidePlaying, ended ] );*/
 
 	useEffect( () => {
 		if ( index <= currentSlideIndex + ( playing ? 1 : 0 ) ) {
