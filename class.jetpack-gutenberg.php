@@ -718,7 +718,7 @@ class Jetpack_Gutenberg {
 		$editor_style  = plugins_url( "{$blocks_dir}editor{$blocks_env}{$rtl}.css", JETPACK__PLUGIN_FILE );
 
 		$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$blocks_env}.asset.php";
-		$editor_deps      = array( 'wp-polyfill' );
+		$editor_deps      = array( 'wp-polyfill', 'lodash' );
 		if ( file_exists( $editor_deps_path ) ) {
 			$asset_manifest = include $editor_deps_path;
 			$editor_deps    = $asset_manifest['dependencies'];
