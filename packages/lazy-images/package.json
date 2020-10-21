@@ -1,0 +1,27 @@
+{
+	"name": "@automattic/jetpack-lazy-images",
+	"version": "1.0.0",
+	"description": "Lazy Image Loading.",
+	"main": "dist/lazy-images.js",
+	"sideEffects": true,
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/Automattic/jetpack.git",
+		"directory": "packages/lazy-images"
+	},
+	"private": true,
+	"author": "Automattic Inc.",
+	"license": "GPL-2.0-or-later",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/issues"
+	},
+	"homepage": "https://github.com/Automattic/jetpack",
+	"scripts": {
+		"clean": "npx rimraf dist",
+		"prebuild": "yarn run clean",
+		"build": "calypso-build lazy-images='./src/js/lazy-images.js'"
+	},
+	"dependencies": {
+		"intersection-observer": "^0.11.0"
+	}
+}
