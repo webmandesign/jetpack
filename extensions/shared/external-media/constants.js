@@ -4,6 +4,7 @@
 
 import { __ } from '@wordpress/i18n';
 import { dateI18n } from '@wordpress/date';
+import { map, range } from 'lodash';
 
 export const SOURCE_WORDPRESS = 'wordpress';
 export const SOURCE_GOOGLE_PHOTOS = 'google_photos';
@@ -173,7 +174,7 @@ export const CURRENT_YEAR = new Date().getFullYear();
 
 export const MONTH_SELECT_OPTIONS = [
 	{ label: __( 'Any Month', 'jetpack' ), value: -1 },
-	...[ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ].map( value => ( {
+	...map( range( 0, 12 ), value => ( {
 		// Following call generates a new date object for the particular month and gets its name.
 		label: dateI18n( 'F', new Date( [ 0, value + 1 ] ) ),
 		value,
