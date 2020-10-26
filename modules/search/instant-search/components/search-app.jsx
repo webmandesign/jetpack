@@ -148,12 +148,11 @@ class SearchApp extends Component {
 
 	handleFilterInputClick = event => {
 		event.preventDefault();
-
-		if ( event.target.dataset.filterType ) {
-			if ( event.target.dataset.filterType === 'taxonomy' ) {
-				setFilterQuery( event.target.dataset.taxonomy, event.target.dataset.val );
+		if ( event.currentTarget.dataset.filterType ) {
+			if ( event.currentTarget.dataset.filterType === 'taxonomy' ) {
+				setFilterQuery( event.currentTarget.dataset.taxonomy, event.currentTarget.dataset.val );
 			} else {
-				setFilterQuery( event.target.dataset.filterType, event.target.dataset.val );
+				setFilterQuery( event.currentTarget.dataset.filterType, event.currentTarget.dataset.val );
 			}
 		}
 		this.showResults();
@@ -184,8 +183,6 @@ class SearchApp extends Component {
 			this.setState( { showResults: false } );
 		} );
 	};
-
-	onChangeQuery = event => setSearchQuery( event.target.value );
 
 	onPopstate = () => {
 		this.onChangeQueryString();
@@ -280,6 +277,7 @@ class SearchApp extends Component {
 					hasNextPage={ this.hasNextPage() }
 					highlightColor={ this.state.overlayOptions.highlightColor }
 					isLoading={ this.state.isLoading }
+					isPrivateSite={ this.props.options.isPrivateSite }
 					isVisible={ this.state.showResults }
 					locale={ this.props.options.locale }
 					onChangeSort={ this.onChangeSort }

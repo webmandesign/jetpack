@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9ac5e4e05b7d798cbccd18d14ed8d40d",
+    "content-hash": "efff4548a1ae7ce5242533ce98017806",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -861,16 +861,16 @@
         },
         {
             "name": "nojimage/twitter-text-php",
-            "version": "v3.1.0",
+            "version": "v3.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nojimage/twitter-text-php.git",
-                "reference": "8e03a5a0ad5da010049e3bad843cb720052d4765"
+                "reference": "7f466b331cebfdd00e3568acaf45f2e90a39a320"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nojimage/twitter-text-php/zipball/8e03a5a0ad5da010049e3bad843cb720052d4765",
-                "reference": "8e03a5a0ad5da010049e3bad843cb720052d4765",
+                "url": "https://api.github.com/repos/nojimage/twitter-text-php/zipball/7f466b331cebfdd00e3568acaf45f2e90a39a320",
+                "reference": "7f466b331cebfdd00e3568acaf45f2e90a39a320",
                 "shasum": ""
             },
             "require": {
@@ -923,10 +923,47 @@
                 "text",
                 "twitter"
             ],
-            "time": "2020-04-22T12:10:15+00:00"
+            "time": "2020-09-30T13:30:59+00:00"
         }
     ],
     "packages-dev": [
+        {
+            "name": "automattic/jetpack-codesniffer",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "./packages/codesniffer",
+                "reference": "32f787cf2b42f5b1b4ef00244557f289bc5f5756"
+            },
+            "require": {
+                "dealerdirect/phpcodesniffer-composer-installer": "0.*",
+                "phpcompatibility/phpcompatibility-wp": "2.1.0",
+                "sirbrillig/phpcs-variable-analysis": "2.9.0",
+                "wp-coding-standards/wpcs": "2.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "phpcodesniffer-standard",
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Sniffs\\": "Jetpack/Sniffs"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Jetpack Coding Standards. Based on the WordPress Coding Standards, with some additions.",
+            "transport-options": {
+                "relative": true
+            }
+        },
         {
             "name": "dealerdirect/phpcodesniffer-composer-installer",
             "version": "v0.7.0",
@@ -1209,16 +1246,16 @@
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
-            "version": "v2.8.3",
+            "version": "v2.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-variable-analysis.git",
-                "reference": "00b4fa3130faa26762c929989e3d958086c627f1"
+                "reference": "ff54d4ec7f2bd152d526fdabfeff639aa9b8be01"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/00b4fa3130faa26762c929989e3d958086c627f1",
-                "reference": "00b4fa3130faa26762c929989e3d958086c627f1",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/ff54d4ec7f2bd152d526fdabfeff639aa9b8be01",
+                "reference": "ff54d4ec7f2bd152d526fdabfeff639aa9b8be01",
                 "shasum": ""
             },
             "require": {
@@ -1253,7 +1290,7 @@
                 }
             ],
             "description": "A PHPCS sniff to detect problems with variables.",
-            "time": "2020-07-11T23:32:06+00:00"
+            "time": "2020-10-07T23:32:29+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -1380,7 +1417,8 @@
         "automattic/jetpack-status": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-terms-of-service": 20,
-        "automattic/jetpack-tracking": 20
+        "automattic/jetpack-tracking": 20,
+        "automattic/jetpack-codesniffer": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
@@ -1390,5 +1428,8 @@
         "ext-openssl": "*"
     },
     "platform-dev": [],
+    "platform-overrides": {
+        "ext-intl": "0.0.0"
+    },
     "plugin-api-version": "1.1.0"
 }

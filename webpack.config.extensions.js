@@ -91,10 +91,6 @@ const extensionsWebpackConfig = getBaseWebpackConfig(
 	}
 );
 
-const transpileConfig = extensionsWebpackConfig.module.rules.find( rule =>
-	rule.use.some( loader => loader.options.presets )
-);
-
 const componentsWebpackConfig = getBaseWebpackConfig(
 	{ WP: false },
 	{
@@ -113,15 +109,6 @@ const componentsWebpackConfig = getBaseWebpackConfig(
 module.exports = [
 	{
 		...extensionsWebpackConfig,
-		// The `module` override fixes https://github.com/Automattic/jetpack/issues/12511.
-		// @TODO Remove once there's a fix in `@automattic/calypso-build`
-		module: {
-			...extensionsWebpackConfig.module,
-			rules: [
-				{ ...transpileConfig, exclude: /node_modules\/(?!punycode)/ },
-				..._.without( extensionsWebpackConfig.module.rules, transpileConfig ),
-			],
-		},
 		plugins: [
 			...extensionsWebpackConfig.plugins,
 			new CopyWebpackPlugin( [

@@ -4,7 +4,6 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Connection\Nonce_Handler;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -507,9 +506,6 @@ class Jetpack {
 						array( __CLASS__, 'upgrade_on_load' )
 					);
 				}
-
-				// Upgrade to Jetpack 9.0.0, cleaning up nonces during runtime.
-				wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 			}
 		}
 	}
@@ -710,7 +706,7 @@ class Jetpack {
 		 * They check for external files or plugins, so they need to run as late as possible.
 		 */
 		add_action( 'wp_head', array( $this, 'check_open_graph' ), 1 );
-		add_action( 'amp_story_head', array( $this, 'check_open_graph' ), 1 );
+		add_action( 'web_stories_story_head', array( $this, 'check_open_graph' ), 1 );
 		add_action( 'plugins_loaded', array( $this, 'check_twitter_tags' ), 999 );
 		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
 
@@ -3306,13 +3302,10 @@ p {
 	 * @static
 	 */
 	public static function disconnect( $update_activated_state = true ) {
-		// The hook is not being set since Jetpack 9.0.0,
-		// but we're removing it just in case it wasn't properly cleaned up after the plugin update.
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 
-		Nonce_Handler::clean_all();
-
 		$connection = self::connection();
+		$connection->clean_nonces( true );
 
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
@@ -3574,18 +3567,13 @@ p {
 		} elseif ( false === Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' ) ) {
 			// Upgrade: 1.1 -> 1.1.1
 			// Check and see if host can verify the Jetpack servers' SSL certificate
-			$args       = array();
-			$connection = self::connection();
-			Client::_wp_remote_request(
-				Connection_Utils::fix_url_for_bad_hosts( $connection->api_url( 'test' ) ),
-				$args,
-				true
-			);
+			$args = array();
+			Client::_wp_remote_request( self::connection()->api_url( 'test' ), $args, true );
 		}
 
 		Jetpack_Wizard_Banner::init();
 
-		if ( current_user_can( 'manage_options' ) && 'AUTO' == JETPACK_CLIENT__HTTPS && ! self::permit_ssl() ) {
+		if ( current_user_can( 'manage_options' ) && ! self::permit_ssl() ) {
 			add_action( 'jetpack_notices', array( $this, 'alert_auto_ssl_fail' ) );
 		}
 
@@ -4759,7 +4747,7 @@ endif;
 
 			// Let's check the existing blog token to see if we need to re-register. We only check once per minute
 			// because otherwise this logic can get us in to a loop.
-			$last_connect_url_check = intval( Jetpack_Options::get_raw_option( 'jetpack_last_connect_url_check' ) );
+			$last_connect_url_check = (int) Jetpack_Options::get_raw_option( 'jetpack_last_connect_url_check' );
 			if ( ! $last_connect_url_check || ( time() - $last_connect_url_check ) > MINUTE_IN_SECONDS ) {
 				Jetpack_Options::update_raw_option( 'jetpack_last_connect_url_check', time() );
 
@@ -5065,13 +5053,14 @@ endif;
 	}
 
 	/**
-	 * @deprecated 8.0 Use Automattic\Jetpack\Connection\Utils::fix_url_for_bad_hosts() instead.
+	 * @deprecated 8.0
 	 *
-	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requsets
+	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requests.
+	 * But we no longer fix "bad hosts" anyway, outbound HTTPS is required for Jetpack to function.
 	 */
 	public static function fix_url_for_bad_hosts( $url ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Automattic\\Jetpack\\Connection\\Utils::fix_url_for_bad_hosts' );
-		return Connection_Utils::fix_url_for_bad_hosts( $url );
+		_deprecated_function( __METHOD__, 'jetpack-8.0' );
+		return $url;
 	}
 
 	public static function verify_onboarding_token( $token_data, $token, $request_data ) {
@@ -5180,32 +5169,19 @@ endif;
 			if ( 'https' !== substr( JETPACK__API_BASE, 0, 5 ) ) {
 				$ssl = 0;
 			} else {
-				switch ( JETPACK_CLIENT__HTTPS ) {
-					case 'NEVER':
-						$ssl     = 0;
-						$message = __( 'JETPACK_CLIENT__HTTPS is set to NEVER', 'jetpack' );
-						break;
-					case 'ALWAYS':
-					case 'AUTO':
-					default:
-						$ssl = 1;
-						break;
-				}
+				$ssl = 1;
 
-				// If it's not 'NEVER', test to see
-				if ( $ssl ) {
-					if ( ! wp_http_supports( array( 'ssl' => true ) ) ) {
+				if ( ! wp_http_supports( array( 'ssl' => true ) ) ) {
+					$ssl     = 0;
+					$message = __( 'WordPress reports no SSL support', 'jetpack' );
+				} else {
+					$response = wp_remote_get( JETPACK__API_BASE . 'test/1/' );
+					if ( is_wp_error( $response ) ) {
 						$ssl     = 0;
 						$message = __( 'WordPress reports no SSL support', 'jetpack' );
-					} else {
-						$response = wp_remote_get( JETPACK__API_BASE . 'test/1/' );
-						if ( is_wp_error( $response ) ) {
-							$ssl     = 0;
-							$message = __( 'WordPress reports no SSL support', 'jetpack' );
-						} elseif ( 'OK' !== wp_remote_retrieve_body( $response ) ) {
-							$ssl     = 0;
-							$message = __( 'Response was not OK: ', 'jetpack' ) . wp_remote_retrieve_body( $response );
-						}
+					} elseif ( 'OK' !== wp_remote_retrieve_body( $response ) ) {
+						$ssl     = 0;
+						$message = __( 'Response was not OK: ', 'jetpack' ) . wp_remote_retrieve_body( $response );
 					}
 				}
 			}
@@ -5217,7 +5193,7 @@ endif;
 	}
 
 	/*
-	 * Displays an admin_notice, alerting the user to their JETPACK_CLIENT__HTTPS constant being 'AUTO' but SSL isn't working.
+	 * Displays an admin_notice, alerting the user that outbound SSL isn't working.
 	 */
 	public function alert_auto_ssl_fail() {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -5793,7 +5769,7 @@ endif;
 		$client_blog_id = is_multisite() ? $blog_id : 0;
 
 		if ( ! isset( $clients[ $client_blog_id ] ) ) {
-			$clients[ $client_blog_id ] = new Jetpack_IXR_ClientMulticall( array( 'user_id' => JETPACK_MASTER_USER ) );
+			$clients[ $client_blog_id ] = new Jetpack_IXR_ClientMulticall( array( 'user_id' => Connection_Manager::CONNECTION_OWNER ) );
 			if ( function_exists( 'ignore_user_abort' ) ) {
 				ignore_user_abort( true );
 			}
@@ -6028,7 +6004,7 @@ endif;
 			$this->connection_manager = new Connection_Manager();
 		}
 
-		if ( ! Nonce_Handler::add( $timestamp, $nonce ) ) {
+		if ( ! $this->connection_manager->add_nonce( $timestamp, $nonce ) ) {
 			// De-nonce the nonce, at least for 5 minutes.
 			// We have to reuse this nonce at least once (used the first time when the initial request is made, used a second time when the login form is POSTed)
 			$old_nonce_time = get_option( "jetpack_nonce_{$timestamp}_{$nonce}" );
@@ -6514,6 +6490,8 @@ endif;
 			'jetpack_mobile_theme_menu'                    => null,
 			'minileven_show_featured_images'               => null,
 			'minileven_attachment_size'                    => null,
+			// Removed in Jetpack 9.1.0.
+			'instagram_cache_oembed_api_response_body'     => null,
 		);
 
 		// This is a silly loop depth. Better way?
@@ -6548,6 +6526,10 @@ endif;
 			'atd_load_scripts'                  => array(
 				'replacement' => null,
 				'version'     => 'jetpack-7.3.0',
+			),
+			'jetpack_can_make_outbound_https'   => array(
+				'replacement' => null,
+				'version'     => 'jetpack-9.1.0',
 			),
 		);
 

@@ -14,6 +14,7 @@ import { getIconColor } from '../../shared/block-icons';
 import edit from './edit';
 import save from './save';
 import deprecatedV1 from './depecrated/v1';
+import deprecatedV2 from './depecrated/v2';
 
 /**
  * Example image
@@ -123,7 +124,7 @@ export const settings = {
 			type: 'string',
 			source: 'html',
 			selector: '.jetpack-simple-payments-purchase',
-			default: __( 'Visit the site to purchase.', 'jetpack' ),
+			default: __( 'Click here to purchase.', 'jetpack' ),
 		},
 		price: {
 			type: 'number',
@@ -189,5 +190,5 @@ export const settings = {
 		reusable: false,
 	},
 
-	deprecated: [ deprecatedV1 ],
+	deprecated: [ deprecatedV1, deprecatedV2 ],
 };

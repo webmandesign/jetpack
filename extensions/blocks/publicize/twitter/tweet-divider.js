@@ -6,6 +6,9 @@ import { Popover } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { Component } from '@wordpress/element';
+// Because the wp-annotations script isn't loaded by default in the block editor, importing
+// it here tells webpack to add it as a dependency to be loaded before Jetpack blocks.
+import '@wordpress/annotations';
 
 /**
  * Internal dependencies
@@ -52,7 +55,8 @@ class TweetDivider extends Component {
 
 		if (
 			currentAnnotations.length !==
-				boundaries.filter( boundary => 'normal' === boundary.type ).length ||
+				boundaries.filter( boundary => [ 'normal', 'line-break' ].includes( boundary.type ) )
+					.length ||
 			! isEqual( prevProps.boundaries, boundaries )
 		) {
 			updateAnnotations();
@@ -181,7 +185,9 @@ export default compose( [
 					childProps.clientId
 				);
 				annotations.forEach( annotation => {
-					if ( annotation.source === 'jetpack-tweetstorm' ) {
+					if (
+						[ 'jetpack-tweetstorm', 'jetpack-tweetstorm-line-break' ].includes( annotation.source )
+					) {
 						dispatch( 'core/annotations' ).__experimentalRemoveAnnotation( annotation.id );
 					}
 				} );
@@ -195,6 +201,13 @@ export default compose( [
 						dispatch( 'core/annotations' ).__experimentalAddAnnotation( {
 							blockClientId: childProps.clientId,
 							source: 'jetpack-tweetstorm',
+							richTextIdentifier: container,
+							range: { start, end },
+						} );
+					} else if ( 'line-break' === type ) {
+						dispatch( 'core/annotations' ).__experimentalAddAnnotation( {
+							blockClientId: childProps.clientId,
+							source: 'jetpack-tweetstorm-line-break',
 							richTextIdentifier: container,
 							range: { start, end },
 						} );

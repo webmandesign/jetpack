@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Functions;
@@ -63,7 +64,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		add_filter( 'jetpack_set_available_extensions',  array( $this, 'add_test_block' ) );
 		Jetpack_Gutenberg::init();
-		jetpack_register_block( 'jetpack/test' );
+		Blocks::jetpack_register_block( 'jetpack/test' );
 
 		$callables = array(
 			'wp_max_upload_size'               => wp_max_upload_size(),
@@ -849,10 +850,10 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		// Nothing should have changed since we cache the results.
 		$this->assertEquals( $this->extract_plugins_we_are_testing( $plugins_action_links ), $expected_array );
 
-		if ( file_exists( WP_CONTENT_DIR . '/plugins/hello.php' )  ) {
+		if ( file_exists( WP_PLUGIN_DIR . '/hello.php' ) ) {
 			activate_plugin('hello.php', '', false, true );
 		}
-		if ( file_exists( WP_CONTENT_DIR . '/plugins/hello-dolly/hello.php' ) ) {
+		if ( file_exists( WP_PLUGIN_DIR . '/hello-dolly/hello.php' ) ) {
 			activate_plugin('hello-dolly/hello.php', '', false, true );
 		}
 

@@ -11,6 +11,7 @@ import { h } from 'preact';
 import SearchResultComments from './search-result-comments';
 import PhotonImage from './photon-image';
 import Gridicon from './gridicon';
+import './search-result-expanded.scss';
 
 function getGridiconName( postType ) {
 	if ( postType === 'post' || postType === 'page' ) {
@@ -98,6 +99,7 @@ export default function SearchResultExpanded( props ) {
 						<PhotonImage
 							alt=""
 							className="jetpack-instant-search__result-expanded__image"
+							isPrivateSite={ this.props.isPrivateSite }
 							src={ `//${ firstImage }` }
 							useDiv
 						/>

@@ -10,6 +10,7 @@ import { h, Component } from 'preact';
  */
 import SearchResultComments from './search-result-comments';
 import PhotonImage from './photon-image';
+import './search-result-product.scss';
 
 class SearchResultProduct extends Component {
 	render() {
@@ -37,9 +38,10 @@ class SearchResultProduct extends Component {
 				</h3>
 				{ firstImage && (
 					<PhotonImage
-						className="jetpack-instant-search__search-result-product-img"
-						src={ `//${ firstImage }` }
 						alt=""
+						className="jetpack-instant-search__search-result-product-img"
+						isPrivateSite={ this.props.isPrivateSite }
+						src={ `//${ firstImage }` }
 					/>
 				) }
 				<div

@@ -808,15 +808,15 @@ EXPECTED;
 	function get_file_url_for_environment_data_provider() {
 		return array(
 			'script-debug-true' => array(
-				'_inc/build/shortcodes/js/instagram.js',
-				'modules/shortcodes/js/instagram.js',
+				'_inc/build/shortcodes/js/recipes.js',
+				'modules/shortcodes/js/recipes.js',
 				true,
 				'non_min_path',
 				'min_path'
 			),
 			'script-debug-false' => array(
-				'_inc/build/shortcodes/js/instagram.js',
-				'modules/shortcodes/js/instagram.js',
+				'_inc/build/shortcodes/js/recipes.js',
+				'modules/shortcodes/js/recipes.js',
 				false,
 				'min_path',
 				'non_min_path'
@@ -931,10 +931,19 @@ EXPECTED;
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
 			'jetpack.jsonAPI',
+			'jetpack.idcUrlValidation',
+			'jetpack.unlinkUser',
+			'jetpack.testConnection',
+			'jetpack.featuresAvailable',
+			'jetpack.featuresEnabled',
 		);
 
-		// Nothing else is allowed.
-		$allowed = array();
+		$allowed = array(
+			'jetpack.getHeartbeatData',
+			'jetpack.syncObject',
+			'jetpack.updatePublicizeConnections',
+			'jetpack.getBlog',
+		);
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
 	}

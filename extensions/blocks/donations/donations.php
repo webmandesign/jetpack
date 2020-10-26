@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions\Donations;
 
+use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'donations';
@@ -20,7 +21,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
-	jetpack_register_block(
+	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
@@ -53,7 +54,7 @@ function render_block( $attr, $content ) {
 		if ( ! $donation['show'] ) {
 			continue;
 		}
-		$plan_id = intval( $donation['planId'] );
+		$plan_id = (int) $donation['planId'];
 		$plan    = get_post( $plan_id );
 		if ( ! $plan || is_wp_error( $plan ) ) {
 			continue;
