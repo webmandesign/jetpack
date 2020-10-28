@@ -178,7 +178,8 @@ class Jetpack_Search_Helpers {
 					$widget_filter['name'] = self::generate_widget_filter_name( $widget_filter );
 				}
 
-				$key = sprintf( '%s_%d', $widget_filter['type'], count( $filters ) );
+				$type = ( isset( $widget_filter['type'] ) ) ? $widget_filter['type'] : '';
+				$key  = sprintf( '%s_%d', $type, count( $filters ) );
 
 				$filters[ $key ] = $widget_filter;
 			}
@@ -227,45 +228,47 @@ class Jetpack_Search_Helpers {
 	static function generate_widget_filter_name( $widget_filter ) {
 		$name = '';
 
-		switch ( $widget_filter['type'] ) {
-			case 'post_type':
-				$name = _x( 'Post Types', 'label for filtering posts', 'jetpack' );
-				break;
-
-			case 'date_histogram':
-				$modified_fields = array(
-					'post_modified',
-					'post_modified_gmt',
-				);
-				switch ( $widget_filter['interval'] ) {
-					case 'year':
-						$name = self::get_date_filter_type_name(
-							'year',
-							in_array( $widget_filter['field'], $modified_fields )
-						);
-						break;
-					case 'month':
-					default:
-						$name = self::get_date_filter_type_name(
-							'month',
-							in_array( $widget_filter['field'], $modified_fields )
-						);
-						break;
-				}
-				break;
-
-			case 'taxonomy':
-				$tax = get_taxonomy( $widget_filter['taxonomy'] );
-				if ( ! $tax ) {
+		if ( isset( $widget_filter['type'] ) ) {
+			switch ( $widget_filter['type'] ) {
+				case 'post_type':
+					$name = _x( 'Post Types', 'label for filtering posts', 'jetpack' );
 					break;
-				}
 
-				if ( isset( $tax->label ) ) {
-					$name = $tax->label;
-				} elseif ( isset( $tax->labels ) && isset( $tax->labels->name ) ) {
-					$name = $tax->labels->name;
-				}
-				break;
+				case 'date_histogram':
+					$modified_fields = array(
+						'post_modified',
+						'post_modified_gmt',
+					);
+					switch ( $widget_filter['interval'] ) {
+						case 'year':
+							$name = self::get_date_filter_type_name(
+								'year',
+								in_array( $widget_filter['field'], $modified_fields, true )
+							);
+							break;
+						case 'month':
+						default:
+							$name = self::get_date_filter_type_name(
+								'month',
+								in_array( $widget_filter['field'], $modified_fields, true )
+							);
+							break;
+					}
+					break;
+
+				case 'taxonomy':
+					$tax = get_taxonomy( $widget_filter['taxonomy'] );
+					if ( ! $tax ) {
+						break;
+					}
+
+					if ( isset( $tax->label ) ) {
+						$name = $tax->label;
+					} elseif ( isset( $tax->labels ) && isset( $tax->labels->name ) ) {
+						$name = $tax->labels->name;
+					}
+					break;
+			}
 		}
 
 		return $name;
