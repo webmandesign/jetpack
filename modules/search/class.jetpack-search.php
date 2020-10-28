@@ -1892,40 +1892,11 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Sends events to Tracks when a search filters widget is updated.
-	 *
-	 * @since 5.8.0
-	 *
-	 * @param string $option    The option name. Only "widget_jetpack-search-filters" is cared about.
-	 * @param array  $old_value The old option value.
-	 * @param array  $new_value The new option value.
-	 */
-	public function track_widget_updates( $option, $old_value, $new_value ) {
-		if ( 'widget_jetpack-search-filters' !== $option ) {
-			return;
-		}
-
-		$event = Jetpack_Search_Helpers::get_widget_tracks_value( $old_value, $new_value );
-		if ( ! $event ) {
-			return;
-		}
-
-		$tracking = new Automattic\Jetpack\Tracking();
-		$tracking->tracks_record_event(
-			wp_get_current_user(),
-			sprintf( 'jetpack_search_widget_%s', $event['action'] ),
-			$event['widget']
-		);
-	}
-
-	/**
 	 * Moves any active search widgets to the inactive category.
 	 *
 	 * @since 5.9.0
-	 *
-	 * @param string $module Unused. The Jetpack module being disabled.
 	 */
-	public function move_search_widgets_to_inactive( $module ) {
+	public function move_search_widgets_to_inactive() {
 		if ( ! is_active_widget( false, false, Jetpack_Search_Helpers::FILTER_WIDGET_BASE, true ) ) {
 			return;
 		}
@@ -1958,6 +1929,33 @@ class Jetpack_Search {
 		if ( $changed ) {
 			wp_set_sidebars_widgets( $sidebars_widgets );
 		}
+	}
+
+	/**
+	 * Sends events to Tracks when a search filters widget is updated.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param string $option    The option name. Only "widget_jetpack-search-filters" is cared about.
+	 * @param array  $old_value The old option value.
+	 * @param array  $new_value The new option value.
+	 */
+	public function track_widget_updates( $option, $old_value, $new_value ) {
+		if ( 'widget_jetpack-search-filters' !== $option ) {
+			return;
+		}
+
+		$event = Jetpack_Search_Helpers::get_widget_tracks_value( $old_value, $new_value );
+		if ( ! $event ) {
+			return;
+		}
+
+		$tracking = new Automattic\Jetpack\Tracking();
+		$tracking->tracks_record_event(
+			wp_get_current_user(),
+			sprintf( 'jetpack_search_widget_%s', $event['action'] ),
+			$event['widget']
+		);
 	}
 
 	/**
