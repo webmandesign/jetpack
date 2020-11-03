@@ -274,6 +274,18 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		fetchAssistantData: () =>
+			getRequest( `${ apiRoot }jetpack/v4/assistant/data`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		saveAssistantData: data =>
+			postRequest( `${ apiRoot }jetpack/v4/assistant/data`, postParams, {
+				body: JSON.stringify( { data } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchProducts: () =>
 			getRequest( `${ apiRoot }jetpack/v4/products`, getParams )
 				.then( checkStatus )
@@ -341,6 +353,13 @@ function JetpackRestApiClient( root, nonce ) {
 		updateLicensingError: props =>
 			postRequest( `${ apiRoot }jetpack/v4/licensing/error`, postParams, {
 				body: JSON.stringify( props ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		updateAssistantStep: step =>
+			postRequest( `${ apiRoot }jetpack/v4/assistant/step`, postParams, {
+				body: JSON.stringify( { step } ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
