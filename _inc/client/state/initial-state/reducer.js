@@ -418,6 +418,17 @@ export function getInitialSetupWizardStatus( state ) {
 }
 
 /**
+ * The current step of the Recommendations.
+ *
+ * @param {*} state Global state tree.
+ *
+ * @return {string} The current Recommendations step.
+ */
+export function getInitialRecommendationsStep( state ) {
+	return get( state.jetpack.initialState, 'recommendationsStep', '' );
+}
+
+/**
  * Get the connection errors.
  *
  * @param  {Object} state Global state tree.
