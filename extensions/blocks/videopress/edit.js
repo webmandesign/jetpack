@@ -34,6 +34,7 @@ import { get } from 'lodash';
 import Loading from './loading';
 import { getVideoPressUrl } from './url';
 import { getClassNames } from './utils';
+import SeekbarColorSettings from './seekbar-color-settings';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 
@@ -268,6 +269,9 @@ const VideoPressEdit = CoreVideoEdit =>
 									) }
 								</BaseControl>
 							</MediaUploadCheck>
+							<SeekbarColorSettings
+								{ ...{ attributes, setAttributes, item: 1 } }
+							></SeekbarColorSettings>
 						</PanelBody>
 					</InspectorControls>
 				</Fragment>

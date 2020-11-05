@@ -115,6 +115,18 @@ const addVideoPressSupport = ( settings, name ) => {
 				poster: {
 					type: 'string',
 				},
+				seekbarPlayedColor: {
+					type: 'string',
+					default: '',
+				},
+				seekbarLoadingColor: {
+					type: 'string',
+					default: '',
+				},
+				seekbarColor: {
+					type: 'string',
+					default: '',
+				},
 				preload: {
 					type: 'string',
 					default: 'metadata',
