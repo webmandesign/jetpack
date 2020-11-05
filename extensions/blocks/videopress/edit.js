@@ -269,9 +269,7 @@ const VideoPressEdit = CoreVideoEdit =>
 									) }
 								</BaseControl>
 							</MediaUploadCheck>
-							<SeekbarColorSettings
-								{ ...{ attributes, setAttributes, item: 1 } }
-							></SeekbarColorSettings>
+							<SeekbarColorSettings { ...{ attributes, setAttributes } }></SeekbarColorSettings>
 						</PanelBody>
 					</InspectorControls>
 				</Fragment>
