@@ -17,7 +17,7 @@
 	},
 	"homepage": "https://github.com/Automattic/jetpack",
 	"scripts": {
-		"clean": "npx rimraf dist",
+		"clean": "rm -rf dist/",
 		"prebuild": "yarn run clean",
 		"build": "calypso-build lazy-images='./src/js/lazy-images.js' && cp ./node_modules/intersection-observer/intersection-observer.js ./dist/"
 	},
