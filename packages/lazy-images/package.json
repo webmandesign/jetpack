@@ -19,7 +19,7 @@
 	"scripts": {
 		"clean": "npx rimraf dist",
 		"prebuild": "yarn run clean",
-		"build": "calypso-build lazy-images='./src/js/lazy-images.js' intersectionobserver-polyfill='./src/js/intersectionobserver-polyfill.js'"
+		"build": "calypso-build lazy-images='./src/js/lazy-images.js' && cp ./src/js/intersectionobserver-polyfill.js ./dist/"
 	},
 	"dependencies": {
 		"intersection-observer": "^0.11.0"
