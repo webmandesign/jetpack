@@ -483,7 +483,7 @@ class Jetpack_Lazy_Images {
 	public function enqueue_assets() {
 		wp_enqueue_script(
 			'jetpack-lazy-images-polyfill-intersectionobserver',
-			Assets::get_file_url_for_environment( 'js/intersectionobserver-polyfill.min.js', 'js/intersectionobserver-polyfill.js', __FILE__ ),
+			Assets::get_file_url_for_environment( '../dist/intersectionobserver-polyfill.js', 'js/intersectionobserver-polyfill.js', __FILE__ ),
 			array(),
 			self::ASSETS_VERSION,
 			true
