@@ -19,7 +19,7 @@
 		"build-client": "gulp",
 		"build-concurrently": "yarn install-if-deps-outdated && yarn clean && yarn concurrently 'yarn build-client' 'yarn build-php' 'yarn build-extensions' 'yarn build-search' 'yarn build-packages'",
 		"build-extensions": "webpack --config ./webpack.config.extensions.js",
-		"build-packages": "cd packages/lazy-images/ && npm run build",
+		"build-packages": "cd packages/lazy-images/ && yarn build",
 		"build-php": "composer install --ignore-platform-reqs",
 		"build-production": "yarn distclean && yarn install --production=false && yarn build-production-client && yarn build-production-php && yarn build-production-extensions && yarn build-production-search && yarn build-production-packages",
 		"build-production-client": "NODE_ENV=production BABEL_ENV=production yarn build-client && yarn validate-es5 -- ./_inc/build/",
