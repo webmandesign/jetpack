@@ -490,7 +490,7 @@ class Jetpack_Lazy_Images {
 		);
 		wp_enqueue_script(
 			'jetpack-lazy-images',
-			Assets::get_file_url_for_environment( '../dist/lazy-images.min.js', 'js/lazy-images.js', __FILE__ ),
+			Assets::get_file_url_for_environment( '../dist/lazy-images.js', 'js/lazy-images.js', __FILE__ ),
 			array( 'jetpack-lazy-images-polyfill-intersectionobserver' ),
 			self::ASSETS_VERSION,
 			true
