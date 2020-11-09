@@ -31,11 +31,11 @@ const step = ( state = '', action ) => {
 export const reducer = combineReducers( { data, step } );
 
 export const getData = state => {
-	return get( state.jetpack, 'recommendations', 'data', '' );
+	return get( state.jetpack, [ 'recommendations', 'data' ], '' );
 };
 
 export const getStep = state => {
-	return '' === get( state.jetpack, 'recommendations', 'step', '' )
+	return '' === get( state.jetpack, [ 'recommendations', 'step' ], '' )
 		? getInitialRecommendationsStep( state )
 		: state.jetpack.recommendations.step;
 };
