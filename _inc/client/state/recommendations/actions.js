@@ -29,9 +29,9 @@ export const fetchRecommendationsData = () => {
 	};
 };
 
-export const updateRecommendationsData = answer => {
+export const updateRecommendationsData = data => {
 	return dispatch => {
-		dispatch( { type: JETPACK_RECOMMENDATIONS_DATA_UPDATE, answer } );
+		dispatch( { type: JETPACK_RECOMMENDATIONS_DATA_UPDATE, data } );
 	};
 };
 
