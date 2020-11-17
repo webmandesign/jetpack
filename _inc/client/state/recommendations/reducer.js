@@ -6,8 +6,9 @@ import { assign, get } from 'lodash';
 
 import {
 	JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE,
-	JETPACK_RECOMMENDATIONS_STEP_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_DATA_UPDATE,
+	JETPACK_RECOMMENDATIONS_STEP_FETCH_RECEIVE,
+	JETPACK_RECOMMENDATIONS_STEP_UPDATE,
 } from 'state/action-types';
 import { getInitialRecommendationsStep } from '../initial-state/reducer';
 
@@ -24,6 +25,7 @@ const data = ( state = {}, action ) => {
 const step = ( state = '', action ) => {
 	switch ( action.type ) {
 		case JETPACK_RECOMMENDATIONS_STEP_FETCH_RECEIVE:
+		case JETPACK_RECOMMENDATIONS_STEP_UPDATE:
 			return action.step;
 		default:
 			return state;
