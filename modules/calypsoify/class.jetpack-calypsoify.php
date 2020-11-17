@@ -35,12 +35,9 @@ class Jetpack_Calypsoify {
 	}
 
 	public function setup() {
-		$this->is_calypsoify_enabled = 1 == (int) get_user_meta( get_current_user_id(), 'calypsoify', true );
-		if ( isset( $_GET['calypsoify'] ) ) {
-			$this->is_calypsoify_enabled = 1 === (int) $_GET['calypsoify'];
-		}
+		$this->is_calypsoify_enabled = isset( $_GET['calypsoify'] ) && 1 === (int) $_GET['calypsoify'];
 		
-		add_action( 'admin_init', array( $this, 'check_param' ), 4 );
+		add_action( 'admin_init', array( $this, 'check_meta' ), 4 );
 
 		if ( $this->is_calypsoify_enabled ) {
 			add_action( 'admin_init', array( $this, 'setup_admin' ), 6 );
@@ -56,10 +53,11 @@ class Jetpack_Calypsoify {
 	public function setup_admin() {
 		global $wp_version;
 		// Masterbar is currently required for this to work properly. Mock the instance of it
+		/*
 		if ( ! Jetpack::is_module_active( 'masterbar' ) ) {
 			$this->mock_masterbar_activation();
 		}
-
+		 */
 		if ( $this->is_page_gutenberg() ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_for_gutenberg' ), 100 );
 			return;
@@ -447,13 +445,9 @@ class Jetpack_Calypsoify {
 		);
 	}
 
-	public function check_param() {
-		if ( isset( $_GET['calypsoify'] ) ) {
-			if ( 1 == (int) $_GET['calypsoify'] ) {
-				update_user_meta( get_current_user_id(), 'calypsoify', 1 );
-			} else {
-				update_user_meta( get_current_user_id(), 'calypsoify', 0 );
-			}
+	public function check_meta() {
+		if ( ! empty( get_user_meta( get_current_user_id(), 'calypsoify', true ) ) ) {
+			delete_user_meta( get_current_user_id(), 'calypsoify' );
 		}
 	}
 
