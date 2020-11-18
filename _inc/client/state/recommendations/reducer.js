@@ -5,7 +5,9 @@ import { combineReducers } from 'redux';
 import { assign, get } from 'lodash';
 
 import {
+	JETPACK_RECOMMENDATIONS_DATA_FETCH,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE,
+	JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL,
 	JETPACK_RECOMMENDATIONS_DATA_UPDATE,
 	JETPACK_RECOMMENDATIONS_STEP_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_STEP_UPDATE,
@@ -22,6 +24,18 @@ const data = ( state = {}, action ) => {
 	}
 };
 
+const requests = ( state = {}, action ) => {
+	switch ( action ) {
+		case JETPACK_RECOMMENDATIONS_DATA_FETCH:
+			return assign( {}, state, { isFetchingRecommendationsData: true } );
+		case JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE:
+		case JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL:
+			return assign( {}, state, { isFetchingRecommendationsData: false } );
+		default:
+			return state;
+	}
+};
+
 const stepReducer = ( state = '', action ) => {
 	switch ( action.type ) {
 		case JETPACK_RECOMMENDATIONS_STEP_FETCH_RECEIVE:
@@ -32,7 +46,11 @@ const stepReducer = ( state = '', action ) => {
 	}
 };
 
-export const reducer = combineReducers( { data, step: stepReducer } );
+export const reducer = combineReducers( { data, requests, step: stepReducer } );
+
+export const isFetchingRecommendationsData = state => {
+	return !! state.jetpack.recommendations.requests.isFetchingRecommendationsData;
+};
 
 export const getDataByKey = ( state, key ) => {
 	return get( state.jetpack, [ 'recommendations', 'data', key ], '' );

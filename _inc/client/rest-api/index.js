@@ -282,9 +282,7 @@ function JetpackRestApiClient( root, nonce ) {
 		saveRecommendationsData: data =>
 			postRequest( `${ apiRoot }jetpack/v4/recommendations/data`, postParams, {
 				body: JSON.stringify( { data } ),
-			} )
-				.then( checkStatus )
-				.then( parseJsonResponse ),
+			} ).then( checkStatus ),
 
 		fetchProducts: () =>
 			getRequest( `${ apiRoot }jetpack/v4/products`, getParams )
@@ -360,9 +358,7 @@ function JetpackRestApiClient( root, nonce ) {
 		updateRecommendationsStep: step =>
 			postRequest( `${ apiRoot }jetpack/v4/recommendations/step`, postParams, {
 				body: JSON.stringify( { step } ),
-			} )
-				.then( checkStatus )
-				.then( parseJsonResponse ),
+			} ).then( checkStatus ),
 	};
 
 	function addCacheBuster( route ) {
