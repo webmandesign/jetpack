@@ -1,6 +1,6 @@
 {
 	"extends": [ "config:base" ],
-	"labels": [ "[Type] Janitorial", "[Status] Needs Review" ],
+	"labels": [ "[Type] Janitorial" ],
 	"prHourlyLimit": 1,
 	"supportPolicy": [ "lts_latest" ],
 	"timezone": "UTC",
@@ -17,5 +17,9 @@
 			"depTypeList": [ "monorepo:wordpress", "monorepo:react" ],
 			"groupName": "React and WordPress monorepos"
 		}
-	]
+	],
+	"semanticCommits": true,
+	"semanticCommitType": "chore",
+	"masterIssue": true,
+	"masterIssueTitle": "Renovate Dependency Updates"
 }
