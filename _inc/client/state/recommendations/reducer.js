@@ -1,9 +1,14 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { combineReducers } from 'redux';
-import { assign, difference, get, mergeWith, union } from 'lodash';
+import { assign, difference, get, mergeWith, remove, union } from 'lodash';
 
+/**
+ * Internal dependencies
+ */
+import { getInitialRecommendationsStep } from '../initial-state/reducer';
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION,
@@ -14,7 +19,8 @@ import {
 	JETPACK_RECOMMENDATIONS_STEP_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_STEP_UPDATE,
 } from 'state/action-types';
-import { getInitialRecommendationsStep } from '../initial-state/reducer';
+import { getSetting } from 'state/settings';
+import { isPluginActive } from 'state/site/plugins';
 
 const mergeArrays = ( obj, src ) => {
 	if ( Array.isArray( obj ) && Array.isArray( src ) ) {
@@ -89,7 +95,7 @@ export const isFetchingRecommendationsData = state => {
 };
 
 export const getDataByKey = ( state, key ) => {
-	return get( state.jetpack, [ 'recommendations', 'data', key ], '' );
+	return get( state.jetpack, [ 'recommendations', 'data', key ], false );
 };
 
 export const getStep = state => {
@@ -120,13 +126,14 @@ const stepToRoute = {
 	summary: '#/recommendations/summary',
 };
 
-const isStepEligible = ( state, step ) => {
+const isStepEligibleToShow = ( state, step ) => {
+	// TODO
 	return true;
 };
 
 const getNextEligibleStep = ( state, step ) => {
 	let nextStep = stepToNextStep[ step ];
-	while ( ! isStepEligible( state, nextStep ) ) {
+	while ( ! isStepEligibleToShow( state, nextStep ) ) {
 		nextStep = stepToNextStep[ nextStep ];
 	}
 	return nextStep;
@@ -136,4 +143,80 @@ export const getNextRoute = state => {
 	const currentStep = getStep( state );
 	const nextStep = getNextEligibleStep( state, currentStep );
 	return stepToRoute[ nextStep ];
+};
+
+export const getSiteTypeDisplayName = state => {
+	const siteTypeKeysInPreferenceOrder = [
+		'site-type-store',
+		'site-type-business',
+		'site-type-personal',
+		'site-type-other',
+	];
+
+	const siteTypeDisplayNamesByKey = {
+		/* translators: A name for a website that sells things */
+		'site-type-store': __( 'store', 'jetpack' ),
+		/* translators: A name for a website for a business */
+		'site-type-business': __( 'business site', 'jetpack' ),
+		/* translators: A name for a website for personal use */
+		'site-type-personal': __( 'personal site', 'jetpack' ),
+		/* translators: A generic name for a website */
+		'site-type-other': __( 'site', 'jetpack' ),
+	};
+
+	for ( const key of siteTypeKeysInPreferenceOrder ) {
+		if ( true === getDataByKey( state, key ) ) {
+			return siteTypeDisplayNamesByKey[ key ];
+		}
+	}
+
+	return siteTypeDisplayNamesByKey[ 'site-type-other' ];
+};
+
+const sortFeatureSlugArray = featureSlugArray => {
+	const sortOrder = [
+		'woocommerce',
+		'monitor',
+		'related-posts',
+		'creative-mail',
+		'site-accelerator',
+	];
+
+	// This is here to help ensure when new recommendations are added the sort order is updated as well.
+	const unknownSlugs = difference( featureSlugArray, sortOrder );
+	if ( unknownSlugs.length > 0 ) {
+		throw `Unknown feature slugs in sortFeatureSlugArray() in recommendations/reducer.js: ${ unknownSlugs }`;
+	}
+
+	return featureSlugArray.sort( ( a, b ) => sortOrder.indexOf( a ) - sortOrder.indexOf( b ) );
+};
+
+export const getSummaryFeatureSlugs = state => {
+	const selectedRecommendations = getDataByKey( state, 'selectedRecommendations' ) || [];
+	const skippedRecommendations = getDataByKey( state, 'skippedRecommendations' ) || [];
+
+	return {
+		selected: sortFeatureSlugArray( selectedRecommendations ),
+		skipped: sortFeatureSlugArray( skippedRecommendations ),
+	};
+};
+
+const isFeatureActive = ( state, featureSlug ) => {
+	switch ( featureSlug ) {
+		case 'creative-mail':
+			return !! isPluginActive(
+				state,
+				'creative-mail-by-constant-contact/creative-mail-plugin.php'
+			);
+		case 'monitor':
+			return !! getSetting( state, 'monitor' );
+		case 'related-posts':
+			return !! getSetting( state, 'related-posts' );
+		case 'site-accelerator':
+			return !! getSetting( state, 'photon' ) && getSetting( state, 'photon-cdn' );
+		case 'woocommerce':
+			return !! isPluginActive( state, 'woocommerce/woocommerce.php' );
+		default:
+			throw `Unknown featureSlug in isFeatureEnabled() in recommendations/reducer.js: ${ featureSlug }`;
+	}
 };
