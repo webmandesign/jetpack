@@ -191,17 +191,7 @@ const sortFeatureSlugArray = featureSlugArray => {
 	return featureSlugArray.sort( ( a, b ) => sortOrder.indexOf( a ) - sortOrder.indexOf( b ) );
 };
 
-export const getSummaryFeatureSlugs = state => {
-	const selectedRecommendations = getDataByKey( state, 'selectedRecommendations' ) || [];
-	const skippedRecommendations = getDataByKey( state, 'skippedRecommendations' ) || [];
-
-	return {
-		selected: sortFeatureSlugArray( selectedRecommendations ),
-		skipped: sortFeatureSlugArray( skippedRecommendations ),
-	};
-};
-
-const isFeatureActive = ( state, featureSlug ) => {
+export const isFeatureActive = ( state, featureSlug ) => {
 	switch ( featureSlug ) {
 		case 'creative-mail':
 			return !! isPluginActive(
@@ -219,4 +209,30 @@ const isFeatureActive = ( state, featureSlug ) => {
 		default:
 			throw `Unknown featureSlug in isFeatureEnabled() in recommendations/reducer.js: ${ featureSlug }`;
 	}
+};
+
+export const getSummaryFeatureSlugs = state => {
+	const featureSlugsInPreferenceOrder = [
+		'woocommerce',
+		'monitor',
+		'related-posts',
+		'creative-mail',
+		'site-accelerator',
+	];
+
+	const selected = [];
+	const skipped = [];
+
+	for ( const slug of featureSlugsInPreferenceOrder ) {
+		if ( isFeatureActive( state, slug ) ) {
+			selected.push( slug );
+		} else {
+			skipped.push( slug );
+		}
+	}
+
+	return {
+		selected,
+		skipped,
+	};
 };

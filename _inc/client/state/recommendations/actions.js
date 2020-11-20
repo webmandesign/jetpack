@@ -56,6 +56,7 @@ export const saveRecommendationsData = () => {
 	};
 };
 
+// TODO: remove this and corresponding parts of the reducer
 export const addSelectedRecommendation = slug => {
 	return ( dispatch, getState ) => {
 		dispatch( { type: JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION, slug } );
@@ -63,6 +64,7 @@ export const addSelectedRecommendation = slug => {
 	};
 };
 
+// TODO: remove this and corresponding parts of the reducer
 export const addSkippedRecommendation = slug => {
 	return ( dispatch, getState ) => {
 		dispatch( { type: JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION, slug } );
