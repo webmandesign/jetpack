@@ -616,10 +616,6 @@ abstract class SAL_Site {
 		return (int) get_option( 'page_for_posts' );
 	}
 
-	public function get_wpcom_public_coming_soon_page_id() {
-		return (int) get_option( 'wpcom_public_coming_soon_page_id' );
-	}
-
 	function is_headstart() {
 		return get_option( 'headstart' );
 	}
@@ -692,5 +688,14 @@ abstract class SAL_Site {
 
 	public function get_selected_features() {
 		return get_option( 'selected_features' );
+	}
+
+	/**
+	 * Get the option storing the Anchor podcast ID that identifies a site as a podcasting site.
+	 *
+	 * @return string
+	 */
+	public function get_anchor_podcast() {
+		return get_option( 'anchor_podcast' );
 	}
 }
