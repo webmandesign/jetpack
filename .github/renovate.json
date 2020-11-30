@@ -33,8 +33,6 @@
 			"labels": [ "Search", "Instant Search" ]
 		}
 	],
-	"semanticCommits": true,
-	"semanticCommitType": "chore",
 	"masterIssue": true,
 	"masterIssueTitle": "Renovate Dependency Updates"
 }
