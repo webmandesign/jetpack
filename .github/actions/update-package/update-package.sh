@@ -66,6 +66,11 @@ for package in packages/*; do
 
 	cp -r $BASE/packages/$NAME/. .
 
+	# Run package build script, if any.
+	if [[ -e $BASE/.github/actions/update-package/build-$NAME.sh ]]; then
+		$BASE/.github/actions/update-package/build-$NAME.sh
+	fi
+
 	# Before we commit any changes, ensure that the repo has the basics we need for any package.
 	if $COMPOSER_JSON_EXISTED && [ ! -f "composer.json" ]; then
 		echo "  Those changes remove essential parts of the package. They will not be committed."
