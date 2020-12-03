@@ -3429,48 +3429,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		return new WP_Error( 'not_found', esc_html__( 'Could not check updates for plugins on this site.', 'jetpack' ), array( 'status' => 404 ) );
 	}
 
-
-	/**
-	 * Returns a list of all plugins in the site.
-	 *
-	 * @since 4.2.0
-	 * @uses get_plugins()
-	 *
-	 * @return array
-	 */
-	private static function core_get_plugins() {
-		if ( ! function_exists( 'get_plugins' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
-		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
-		$plugins = apply_filters( 'all_plugins', get_plugins() );
-
-		if ( is_array( $plugins ) && ! empty( $plugins ) ) {
-			foreach ( $plugins as $plugin_slug => $plugin_data ) {
-				$plugins[ $plugin_slug ]['active'] = self::core_is_plugin_active( $plugin_slug );
-			}
-			return $plugins;
-		}
-
-		return array();
-	}
-
-	/**
-	 * Checks if the queried plugin is active.
-	 *
-	 * @since 4.2.0
-	 * @uses is_plugin_active()
-	 *
-	 * @return bool
-	 */
-	private static function core_is_plugin_active( $plugin ) {
-		if ( ! function_exists( 'is_plugin_active' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
-
-		return is_plugin_active( $plugin );
-	}
-
 	/**
 	 * Get plugins data in site.
 	 *
