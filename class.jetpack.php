@@ -4558,6 +4558,17 @@ endif;
 		self::handle_post_authorization_actions( $activate_sso, $do_redirect_on_error );
 	}
 
+	/**
+	 * This action fires at the end of the REST_Connector connection_reconnect method when the
+	 * reconnect process is completed.
+	 * Note that this currently only happens when we don't need the user to re-authorize
+	 * their WP.com account, eg in cases where we are restoring a connection with
+	 * unhealthy blog token.
+	 */
+	public static function reconnection_completed() {
+		self::state( 'message', 'reconnection_completed' );
+	}
+
 	public static function apply_activation_source_to_args( &$args ) {
 		list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source' );
 
@@ -4991,8 +5002,17 @@ endif;
 		Connection_Rest_Authentication::init()->reset_saved_auth_state();
 	}
 
-	// Authenticates requests from Jetpack server to WP REST API endpoints.
-	// Uses the existing XMLRPC request signing implementation.
+	/**
+	 * Authenticates requests from Jetpack server to WP REST API endpoints.
+	 * Uses the existing XMLRPC request signing implementation.
+	 *
+	 * @deprecated since 8.9.0
+	 * @see Automattic\Jetpack\Connection\Rest_Authentication::wp_rest_authenticate()
+	 *
+	 * @param int|bool $user User ID if one has been determined, false otherwise.
+	 *
+	 * @return int|null The user id or null if the request was not authenticated.
+	 */
 	function wp_rest_authenticate( $user ) {
 		_deprecated_function( __METHOD__, 'jetpack-8.9', 'Automattic\\Jetpack\\Connection\\Rest_Authentication::wp_rest_authenticate' );
 		return Connection_Rest_Authentication::init()->wp_rest_authenticate( $user );
