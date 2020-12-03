@@ -5513,19 +5513,6 @@ endif;
 	}
 
 	/**
-	 * Checks whether the home and siteurl specifically are allowed.
-	 * Written so that we don't have re-check $key and $value params every time
-	 * we want to check if this site is allowed, for example in footer.php
-	 *
-	 * @since  3.8.0
-	 * @return bool True = already allowed False = not on the allowed list.
-	 */
-	public static function is_staging_site() {
-		_deprecated_function( 'Jetpack::is_staging_site', 'jetpack-8.1', '/Automattic/Jetpack/Status->is_staging_site' );
-		return ( new Status() )->is_staging_site();
-	}
-
-	/**
 	 * Checks whether the sync_error_idc option is valid or not, and if not, will do cleanup.
 	 *
 	 * @since 4.4.0

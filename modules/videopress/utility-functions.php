@@ -607,22 +607,6 @@ function videopress_get_post_by_guid( $guid ) {
 }
 
 /**
- * Using a GUID, find a post.
- *
- * Kept for backward compatibility. Use videopress_get_post_by_guid() instead.
- *
- * @deprecated since 8.4.0
- * @see videopress_get_post_by_guid()
- *
- * @param string $guid The post guid.
- * @return WP_Post|false The post for that guid, or false if none is found.
- */
-function video_get_post_by_guid( $guid ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-8.4' );
-	return videopress_get_post_by_guid( $guid );
-}
-
-/**
  * Using a GUID, find the associated post ID.
  *
  * @since 8.4.0
