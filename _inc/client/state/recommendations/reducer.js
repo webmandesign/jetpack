@@ -128,9 +128,37 @@ const stepToRoute = {
 	summary: '#/recommendations/summary',
 };
 
+export const isFeatureActive = ( state, featureSlug ) => {
+	switch ( featureSlug ) {
+		case 'creative-mail':
+			return !! isPluginActive(
+				state,
+				'creative-mail-by-constant-contact/creative-mail-plugin.php'
+			);
+		case 'monitor':
+			return !! getSetting( state, 'monitor' );
+		case 'related-posts':
+			return !! getSetting( state, 'related-posts' );
+		case 'site-accelerator':
+			return !! getSetting( state, 'photon' ) && getSetting( state, 'photon-cdn' );
+		case 'woocommerce':
+			return !! isPluginActive( state, 'woocommerce/woocommerce.php' );
+		default:
+			throw `Unknown featureSlug in isFeatureEnabled() in recommendations/reducer.js: ${ featureSlug }`;
+	}
+};
+
 const isStepEligibleToShow = ( state, step ) => {
-	// TODO
-	return true;
+	// TODO: include answers to site-type-question in calculation of eligibility
+	switch ( step ) {
+		case 'not-started':
+			return false;
+		case 'site-type-question':
+		case 'summary':
+			return true;
+		default:
+			return ! isFeatureActive( state, step );
+	}
 };
 
 const getNextEligibleStep = ( state, step ) => {
@@ -175,6 +203,7 @@ export const getSiteTypeDisplayName = state => {
 	return siteTypeDisplayNamesByKey[ 'site-type-other' ];
 };
 
+// TODO: delete
 const sortFeatureSlugArray = featureSlugArray => {
 	const sortOrder = [
 		'woocommerce',
@@ -191,26 +220,6 @@ const sortFeatureSlugArray = featureSlugArray => {
 	}
 
 	return featureSlugArray.sort( ( a, b ) => sortOrder.indexOf( a ) - sortOrder.indexOf( b ) );
-};
-
-export const isFeatureActive = ( state, featureSlug ) => {
-	switch ( featureSlug ) {
-		case 'creative-mail':
-			return !! isPluginActive(
-				state,
-				'creative-mail-by-constant-contact/creative-mail-plugin.php'
-			);
-		case 'monitor':
-			return !! getSetting( state, 'monitor' );
-		case 'related-posts':
-			return !! getSetting( state, 'related-posts' );
-		case 'site-accelerator':
-			return !! getSetting( state, 'photon' ) && getSetting( state, 'photon-cdn' );
-		case 'woocommerce':
-			return !! isPluginActive( state, 'woocommerce/woocommerce.php' );
-		default:
-			throw `Unknown featureSlug in isFeatureEnabled() in recommendations/reducer.js: ${ featureSlug }`;
-	}
 };
 
 export const getSummaryFeatureSlugs = state => {
