@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
+import classnames from 'classnames';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { RichText } from '@wordpress/block-editor';
+import { RichText, useBlockProps } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -21,6 +22,7 @@ const VideoPressSave = CoreVideoSave => props => {
 			poster,
 			preload,
 			classNames,
+			align,
 		} = {},
 	} = props;
 
@@ -46,8 +48,14 @@ const VideoPressSave = CoreVideoSave => props => {
 		preload,
 	} );
 
+	const blockProps = useBlockProps
+		? useBlockProps.save()
+		: {
+				className: classnames( classNames, { [ `align${ align }` ]: align } ),
+		  };
+
 	return (
-		<figure className={ classNames }>
+		<figure { ...blockProps }>
 			<div className="wp-block-embed__wrapper">
 				{ `\n${ url }\n` /* URL needs to be on its own line. */ }
 			</div>
