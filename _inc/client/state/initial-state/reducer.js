@@ -275,6 +275,17 @@ export function showBackups( state ) {
 }
 
 /**
+ * Determines if the Jetpack Recommendations should be displayed
+ *
+ * @param {object} state Global state tree
+ *
+ * @return {boolean} True if the Jetpack Recommendations should be displayed, false otherwise.
+ */
+export function showRecommendations( state ) {
+	return get( state.jetpack.initialState.siteData, 'showRecommendations', false );
+}
+
+/**
  * Check if the Setup Wizard should be displayed
  *
  * @param {object} state Global state tree
