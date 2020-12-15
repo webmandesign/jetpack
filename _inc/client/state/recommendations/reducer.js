@@ -10,8 +10,6 @@ import { assign, difference, get, mergeWith, remove, union } from 'lodash';
  */
 import { getInitialRecommendationsStep } from '../initial-state/reducer';
 import {
-	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
-	JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL,
@@ -27,45 +25,11 @@ import { getSetting } from 'state/settings';
 import { getSitePlan, hasActiveProductPurchase, hasActiveScanPurchase } from 'state/site';
 import { isPluginActive } from 'state/site/plugins';
 
-const mergeArrays = ( obj, src ) => {
-	if ( Array.isArray( obj ) && Array.isArray( src ) ) {
-		return union( obj, src );
-	}
-};
-
 const data = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE:
 		case JETPACK_RECOMMENDATIONS_DATA_UPDATE:
 			return assign( {}, state, action.data );
-		case JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION:
-			const selectedState = mergeWith(
-				{},
-				state,
-				{
-					selectedRecommendations: [ action.slug ],
-					skippedRecommendations: [],
-				},
-				mergeArrays
-			);
-			selectedState.skippedRecommendations = difference( state.skippedRecommendations, [
-				action.slug,
-			] );
-			return selectedState;
-		case JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION:
-			const skippedState = mergeWith(
-				{},
-				state,
-				{
-					selectedRecommendations: [],
-					skippedRecommendations: [ action.slug ],
-				},
-				mergeArrays
-			);
-			skippedState.selectedRecommendations = difference( state.selectedRecommendations, [
-				action.slug,
-			] );
-			return skippedState;
 		default:
 			return state;
 	}
@@ -171,13 +135,14 @@ export const isFeatureActive = ( state, featureSlug ) => {
 };
 
 const isStepEligibleToShow = ( state, step ) => {
-	// TODO: include answers to site-type-question in calculation of eligibility
 	switch ( step ) {
 		case 'not-started':
 			return false;
 		case 'site-type-question':
 		case 'summary':
 			return true;
+		case 'woocommerce':
+			return getDataByKey( state, 'site-type-store' ) ? ! isFeatureActive( state, step ) : false;
 		default:
 			return ! isFeatureActive( state, step );
 	}
@@ -227,25 +192,6 @@ export const getSiteTypeDisplayName = state => {
 
 export const getUpsell = state => get( state.jetpack, [ 'recommendations', 'upsell' ], {} );
 
-// TODO: delete
-const sortFeatureSlugArray = featureSlugArray => {
-	const sortOrder = [
-		'woocommerce',
-		'monitor',
-		'related-posts',
-		'creative-mail',
-		'site-accelerator',
-	];
-
-	// This is here to help ensure when new recommendations are added the sort order is updated as well.
-	const unknownSlugs = difference( featureSlugArray, sortOrder );
-	if ( unknownSlugs.length > 0 ) {
-		throw `Unknown feature slugs in sortFeatureSlugArray() in recommendations/reducer.js: ${ unknownSlugs }`;
-	}
-
-	return featureSlugArray.sort( ( a, b ) => sortOrder.indexOf( a ) - sortOrder.indexOf( b ) );
-};
-
 export const getSummaryFeatureSlugs = state => {
 	const featureSlugsInPreferenceOrder = [
 		'woocommerce',
@@ -255,10 +201,14 @@ export const getSummaryFeatureSlugs = state => {
 		'site-accelerator',
 	];
 
+	const featureSlugsEligibleToShow = featureSlugsInPreferenceOrder.filter( slug =>
+		isStepEligibleToShow( state, slug )
+	);
+
 	const selected = [];
 	const skipped = [];
 
-	for ( const slug of featureSlugsInPreferenceOrder ) {
+	for ( const slug of featureSlugsEligibleToShow ) {
 		if ( isFeatureActive( state, slug ) ) {
 			selected.push( slug );
 		} else {
