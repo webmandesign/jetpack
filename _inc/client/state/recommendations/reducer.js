@@ -18,6 +18,9 @@ import {
 	JETPACK_RECOMMENDATIONS_DATA_UPDATE,
 	JETPACK_RECOMMENDATIONS_STEP_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_STEP_UPDATE,
+	JETPACK_RECOMMENDATIONS_UPSELL_FETCH,
+	JETPACK_RECOMMENDATIONS_UPSELL_FETCH_RECEIVE,
+	JETPACK_RECOMMENDATIONS_UPSELL_FETCH_FAIL,
 } from 'state/action-types';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
@@ -75,6 +78,11 @@ const requests = ( state = {}, action ) => {
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE:
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL:
 			return assign( {}, state, { isFetchingRecommendationsData: false } );
+		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH:
+			return assign( {}, state, { isFetchingRecommendationsUpsell: true } );
+		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH_RECEIVE:
+		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH_FAIL:
+			return assign( {}, state, { isFetchingRecommendationsUpsell: false } );
 		default:
 			return state;
 	}
@@ -90,10 +98,23 @@ const stepReducer = ( state = '', action ) => {
 	}
 };
 
-export const reducer = combineReducers( { data, requests, step: stepReducer } );
+const upsell = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH_RECEIVE:
+			return action.upsell;
+		default:
+			return state;
+	}
+};
+
+export const reducer = combineReducers( { data, requests, step: stepReducer, upsell } );
 
 export const isFetchingRecommendationsData = state => {
 	return !! state.jetpack.recommendations.requests.isFetchingRecommendationsData;
+};
+
+export const isFetchingRecommendationsUpsell = state => {
+	return !! state.jetpack.recommendations.requests.isFetchingRecommendationsUpsell;
 };
 
 export const getDataByKey = ( state, key ) => {
@@ -202,6 +223,8 @@ export const getSiteTypeDisplayName = state => {
 
 	return siteTypeDisplayNamesByKey[ 'site-type-other' ];
 };
+
+export const getUpsell = state => get( state.jetpack, [ 'recommendations', 'upsell' ], {} );
 
 // TODO: delete
 const sortFeatureSlugArray = featureSlugArray => {

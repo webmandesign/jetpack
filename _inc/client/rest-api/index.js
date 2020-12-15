@@ -279,6 +279,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		fetchRecommendationsUpsell: () =>
+			getRequest( `${ apiRoot }jetpack/v4/recommendations/upsell`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		saveRecommendationsData: data =>
 			postRequest( `${ apiRoot }jetpack/v4/recommendations/data`, postParams, {
 				body: JSON.stringify( { data } ),

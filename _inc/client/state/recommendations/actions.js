@@ -15,6 +15,9 @@ import {
 	JETPACK_RECOMMENDATIONS_STEP_UPDATE,
 	JETPACK_RECOMMENDATIONS_STEP_UPDATE_SUCCESS,
 	JETPACK_RECOMMENDATIONS_STEP_UPDATE_FAIL,
+	JETPACK_RECOMMENDATIONS_UPSELL_FETCH,
+	JETPACK_RECOMMENDATIONS_UPSELL_FETCH_RECEIVE,
+	JETPACK_RECOMMENDATIONS_UPSELL_FETCH_FAIL,
 } from 'state/action-types';
 
 export const fetchRecommendationsData = () => {
@@ -85,5 +88,17 @@ export const updateRecommendationsStep = step => {
 			.catch( error => {
 				dispatch( { type: JETPACK_RECOMMENDATIONS_STEP_UPDATE_FAIL, error } );
 			} );
+	};
+};
+
+export const fetchRecommendationsUpsell = () => {
+	return dispatch => {
+		dispatch( { type: JETPACK_RECOMMENDATIONS_UPSELL_FETCH } );
+		return restApi
+			.fetchRecommendationsUpsell()
+			.then( upsell => {
+				dispatch( { type: JETPACK_RECOMMENDATIONS_UPSELL_FETCH_RECEIVE, upsell } );
+			} )
+			.catch( error => dispatch( { type: JETPACK_RECOMMENDATIONS_UPSELL_FETCH_FAIL, error } ) );
 	};
 };
