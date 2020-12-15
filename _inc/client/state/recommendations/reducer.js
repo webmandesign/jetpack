@@ -101,6 +101,7 @@ const stepReducer = ( state = '', action ) => {
 const upsell = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH_RECEIVE:
+		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH_FAIL:
 			return action.upsell;
 		default:
 			return state;

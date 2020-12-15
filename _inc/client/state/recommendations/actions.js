@@ -99,6 +99,12 @@ export const fetchRecommendationsUpsell = () => {
 			.then( upsell => {
 				dispatch( { type: JETPACK_RECOMMENDATIONS_UPSELL_FETCH_RECEIVE, upsell } );
 			} )
-			.catch( error => dispatch( { type: JETPACK_RECOMMENDATIONS_UPSELL_FETCH_FAIL, error } ) );
+			.catch( error =>
+				dispatch( {
+					type: JETPACK_RECOMMENDATIONS_UPSELL_FETCH_FAIL,
+					error,
+					upsell: { hide_upsell: true },
+				} )
+			);
 	};
 };
