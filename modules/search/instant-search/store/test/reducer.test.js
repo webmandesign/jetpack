@@ -118,3 +118,27 @@ describe( 'sort Reducer', () => {
 	} );
 } );
 
+describe( 'filters Reducer', () => {
+	test( 'defaults to an empty object', () => {
+		const state = filters( undefined, {} );
+		expect( state ).toEqual( {} );
+	} );
+	test( 'is updated by a set filter action', () => {
+		const state = filters( undefined, setFilter( 'post_types', [ 'post' ] ) );
+		expect( state ).toEqual( {
+			post_types: [ 'post' ],
+		} );
+	} );
+	test( 'ignores set filter actions with invalid filter names', () => {
+		const state = filters( undefined, setFilter( 'apple', [ 'tart' ] ) );
+		expect( state ).toEqual( {} );
+	} );
+	test( 'ignores set filter actions with non-array values', () => {
+		const state = filters( undefined, setFilter( 'post_types', 'tart' ) );
+		expect( state ).toEqual( {} );
+	} );
+	test( 'is reset by a clear filters action', () => {
+		const state = filters( { post_types: [ 'post' ] }, clearFilters() );
+		expect( state ).toEqual( {} );
+	} );
+} );
