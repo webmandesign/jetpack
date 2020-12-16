@@ -4189,21 +4189,28 @@ p {
 					add_filter( 'allowed_redirect_hosts', function( $domains ) {
 						$domains[] = 'jetpack.com';
 						$domains[] = 'jetpack.wordpress.com';
+						$domains[] = 'wordpress.com';
 						return $domains;
 					} );
 
-					if ( self::is_active() && self::is_user_connected() ) {
-						$redirect_url = 'https://jetpack.com/redirect/?' . ( empty( $_GET['query_string'] )  ? '' : $_GET['query_string'] );
+					// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					$dest_url = empty( $_GET['dest_url'] ) ? null : $_GET['dest_url'];
 
-						wp_safe_redirect( $redirect_url );
+					if ( ! $dest_url || ( 0 === stripos( $dest_url, 'https://jetpack.com/' ) && 0 === stripos( $dest_url, 'https://wordpress.com/' ) ) ) {
+						// The destination URL is missing or invalid, nothing to do here.
+						exit;
+					}
+
+					if ( self::is_active() && self::is_user_connected() ) {
+						wp_safe_redirect( $dest_url );
 						exit;
 					}
 
 					$redirect_url = self::admin_url(
 						array(
-							'page'         => 'jetpack',
-							'action'       => 'authorize_redirect',
-							'query_string' => empty( $_GET['query_string'] )  ? '' : urlencode( $_GET['query_string'] ),
+							'page'     => 'jetpack',
+							'action'   => 'authorize_redirect',
+							'dest_url' => rawurlencode( $dest_url ),
 						)
 					);
 
