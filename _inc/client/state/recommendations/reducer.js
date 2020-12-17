@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { combineReducers } from 'redux';
-import { assign, difference, get, mergeWith, remove, union } from 'lodash';
+import { assign, get } from 'lodash';
 
 /**
  * Internal dependencies
@@ -192,6 +192,15 @@ export const getSiteTypeDisplayName = state => {
 
 export const getUpsell = state => get( state.jetpack, [ 'recommendations', 'upsell' ], {} );
 
+const isFeatureEligibleToShowInSummary = ( state, slug ) => {
+	switch ( slug ) {
+		case 'woocommerce':
+			return true === getDataByKey( state, 'site-type-store' );
+		default:
+			return true;
+	}
+};
+
 export const getSummaryFeatureSlugs = state => {
 	const featureSlugsInPreferenceOrder = [
 		'woocommerce',
@@ -202,7 +211,7 @@ export const getSummaryFeatureSlugs = state => {
 	];
 
 	const featureSlugsEligibleToShow = featureSlugsInPreferenceOrder.filter( slug =>
-		isStepEligibleToShow( state, slug )
+		isFeatureEligibleToShowInSummary( state, slug )
 	);
 
 	const selected = [];
