@@ -55,7 +55,10 @@ export function filters( state = {}, action ) {
 		case 'CLEAR_FILTERS':
 			return {};
 		case 'SET_FILTER':
-			if ( ! getFilterKeys().includes( action.name ) || ! Array.isArray( action.value ) ) {
+			if (
+				! getFilterKeys().includes( action.name ) ||
+				( ! Array.isArray( action.value ) && typeof action.value !== 'string' )
+			) {
 				return state;
 			}
 			if ( action.value.length === 0 ) {
@@ -65,7 +68,7 @@ export function filters( state = {}, action ) {
 			}
 			return {
 				...state,
-				[ action.name ]: action.value,
+				[ action.name ]: typeof action.value === 'string' ? [ action.value ] : action.value,
 			};
 	}
 
