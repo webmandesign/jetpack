@@ -153,15 +153,17 @@ class SearchApp extends Component {
 
 	handleInput = debounce( event => {
 		// Reference: https://rawgit.com/w3c/input-events/v1/index.html#interface-InputEvent-Attributes
-		if ( event.inputType.includes( 'delete' ) || event.inputType.includes( 'format' ) ) {
+		if ( event.inputType.includes( 'format' ) || event.target.value === '' ) {
 			return;
 		}
+		this.props.setSearchQuery( event.target.value );
 
 		if ( this.state.overlayOptions.overlayTrigger === 'immediate' ) {
 			this.showResults();
 		}
-
-		this.props.setSearchQuery( event.target.value );
+		if ( this.state.overlayOptions.overlayTrigger === 'results' ) {
+			this.props.response?.results && this.showResults();
+		}
 	}, 200 );
 
 	handleFilterInputClick = event => {
