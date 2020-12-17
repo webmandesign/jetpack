@@ -220,9 +220,6 @@ class SearchApp extends Component {
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.value = this.props.searchQuery;
 		} );
-
-		// NOTE: This is necessary to ensure that the search query has been propagated to SearchBox
-		this.forceUpdate();
 	};
 
 	loadNextPage = () => {
