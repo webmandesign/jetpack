@@ -6,7 +6,7 @@ import React from 'react';
 /**
  * WordPress dependencies
  */
-import { PanelColorSettings, ContrastChecker } from '@wordpress/block-editor';
+import { PanelColorSettings } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -16,8 +16,8 @@ import { __ } from '@wordpress/i18n';
 const SeekbarColorSettings = ( { attributes, setAttributes } ) => {
 	const handleChangeSeekbarColor = seekbarColor => setAttributes( { seekbarColor } );
 
-	const handleChangeSeekbarLoadedColor = seekbarLoadedColor =>
-		setAttributes( { seekbarLoadedColor } );
+	const handleChangeSeekbarLoadingColor = seekbarLoadingColor =>
+		setAttributes( { seekbarLoadingColor } );
 
 	const handleChangeSeekbarPlayedColor = seekbarPlayedColor =>
 		setAttributes( { seekbarPlayedColor } );
@@ -33,8 +33,8 @@ const SeekbarColorSettings = ( { attributes, setAttributes } ) => {
 					label: __( 'Main' ),
 				},
 				{
-					value: attributes.seekbarLoadedColor,
-					onChange: handleChangeSeekbarLoadedColor,
+					value: attributes.seekbarLoadingColor,
+					onChange: handleChangeSeekbarLoadingColor,
 					label: __( 'Loaded' ),
 				},
 				{
@@ -43,7 +43,7 @@ const SeekbarColorSettings = ( { attributes, setAttributes } ) => {
 					label: __( 'Progress' ),
 				},
 			] }
-		></PanelColorSettings>
+		/>
 	);
 };
 
