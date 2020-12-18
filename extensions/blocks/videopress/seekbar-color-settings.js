@@ -24,7 +24,7 @@ const SeekbarColorSettings = ( { attributes, setAttributes } ) => {
 
 	return (
 		<PanelColorSettings
-			title={ __( 'Seekbar colors' ) }
+			title={ __( 'Seekbar Colors' ) }
 			initialOpen={ false }
 			colorSettings={ [
 				{
