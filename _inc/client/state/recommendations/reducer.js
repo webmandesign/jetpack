@@ -3,13 +3,15 @@
  */
 import { __ } from '@wordpress/i18n';
 import { combineReducers } from 'redux';
-import { assign, get } from 'lodash';
+import { assign, difference, get, mergeWith, union } from 'lodash';
 
 /**
  * Internal dependencies
  */
 import { getInitialRecommendationsStep } from '../initial-state/reducer';
 import {
+	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
+	JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL,
@@ -25,11 +27,45 @@ import { getSetting } from 'state/settings';
 import { getSitePlan, hasActiveProductPurchase, hasActiveScanPurchase } from 'state/site';
 import { isPluginActive } from 'state/site/plugins';
 
+const mergeArrays = ( x, y ) => {
+	if ( Array.isArray( x ) && Array.isArray( y ) ) {
+		return union( x, y );
+	}
+};
+
 const data = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE:
 		case JETPACK_RECOMMENDATIONS_DATA_UPDATE:
 			return assign( {}, state, action.data );
+		case JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION:
+			const selectedState = mergeWith(
+				{},
+				state,
+				{
+					selectedRecommendations: [ action.slug ],
+					skippedRecommendations: [],
+				},
+				mergeArrays
+			);
+			selectedState.skippedRecommendations = difference( state.skippedRecommendations, [
+				action.slug,
+			] );
+			return selectedState;
+		case JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION:
+			const skippedState = mergeWith(
+				{},
+				state,
+				{
+					selectedRecommendations: [],
+					skippedRecommendations: [ action.slug ],
+				},
+				mergeArrays
+			);
+			skippedState.selectedRecommendations = difference( state.selectedRecommendations, [
+				action.slug,
+			] );
+			return skippedState;
 		default:
 			return state;
 	}
