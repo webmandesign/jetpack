@@ -269,7 +269,7 @@ const VideoPressEdit = CoreVideoEdit =>
 									) }
 								</BaseControl>
 							</MediaUploadCheck>
-							<SeekbarColorSettings { ...{ attributes, setAttributes } }></SeekbarColorSettings>
+							<SeekbarColorSettings { ...{ attributes, setAttributes } } />
 						</PanelBody>
 					</InspectorControls>
 				</Fragment>
@@ -348,7 +348,19 @@ const VideoPressEdit = CoreVideoEdit =>
 export default createHigherOrderComponent(
 	compose( [
 		withSelect( ( select, ownProps ) => {
-			const { autoplay, controls, guid, loop, muted, poster, preload, src } = ownProps.attributes;
+			const {
+				autoplay,
+				controls,
+				guid,
+				loop,
+				muted,
+				poster,
+				preload,
+				seekbarColor,
+				seekbarLoadingColor,
+				seekbarPlayedColor,
+				src
+			} = ownProps.attributes;
 			const { getEmbedPreview, isRequestingEmbedPreview } = select( 'core' );
 
 			const url = getVideoPressUrl( guid, {
@@ -358,6 +370,9 @@ export default createHigherOrderComponent(
 				muted,
 				poster,
 				preload,
+				seekbarColor,
+				seekbarLoadingColor,
+				seekbarPlayedColor
 			} );
 			const preview = !! url && getEmbedPreview( url );
 
