@@ -289,6 +289,10 @@ export default function DialogueEdit ( {
 					} );
 				} }
 				onReplace={ ( blocks, ...args ) => {
+					if ( ! transcritionBridge ) {
+						return onReplace( blocks, ...args );
+					}
+
 					if (
 						blocks[ 0 ]?.name === blockNameFallback &&
 						blocks[ 1 ]?.name === blockNameFallback &&
